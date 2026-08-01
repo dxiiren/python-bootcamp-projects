@@ -1,37 +1,98 @@
-# Python-Bootcamp-Projects
-A collection of Python projects created during the Exelerate Asia and K-Youth Python bootcamp. Includes a simple web app using Flask and data analysis with Pandas.
+# Python Bootcamp Projects
 
-This repository contains two Python projects developed during the Python bootcamp with Exelerate Asia and K-Youth. The projects showcase the usage of Flask for a simple web app and Pandas for data analysis. 
+Two beginner Python projects from the Exelerate Asia / K-Youth Python bootcamp (2023),
+preserved as-is: a Flask web app that serves random/custom jokes (JokeAPI) and country
+lookups (REST Countries), plus Jupyter notebooks — console prototypes of both API clients
+and a Pandas/Matplotlib/Seaborn analysis of a Kaggle anime dataset.
 
-## Project Details
+> **New developer? Start with [`.docs/tldr.md`](.docs/tldr.md)** — every doc summarised on one
+> page. The full guide lives in [`.docs/`](.docs/README.md).
 
-### Flask Web App
-- The Flask web app in this repository utilizes data from two APIs:
-  - **Joke API:** Fetches random jokes to display on the web app. You can find the API [here](https://jokeapi.dev/?authuser=0).
-  - **Country API:** Retrieves information about various countries to display on the web app. The API can be found [here](https://restcountries.com/?authuser=0).
+## Prerequisites
 
-The Flask web app demonstrates basic web development using Python, serving as a great starting point for web development beginners.
+| Tool | Version | Installed by |
+| --- | --- | --- |
+| PowerShell + winget | Windows 10/11 stock | — (the only true prerequisites) |
+| Git | any recent | `setup.ps1` |
+| Node.js | LTS (needed by the Claude CLI) | `setup.ps1` |
+| uv (+ Python) | latest | `setup.ps1` |
+| GitHub CLI | any recent | `setup.ps1` |
+| just | any recent | `setup.ps1` |
+| Claude Code CLI | latest | `setup.ps1` (optional, for AI-assisted dev) |
 
-### Data Analysis with Pandas
-- The data analysis project in this repository focuses on working with a dataset of anime published from 2000 to the present. The dataset is obtained from Kaggle and is available [here](https://www.kaggle.com/datasets/vishalmane10/anime-dataset-2022/?authuser=0).
+There is no `requirements.txt` — every recipe pulls its own dependencies through
+`uv run --with ...` (downloaded once, cached after).
 
-The Pandas data analysis project highlights the power of Pandas for data manipulation and analysis in Python. You can explore data trends, filter information, and generate valuable insights from the provided dataset.
+## Quick start
 
-## Project Structure
+```powershell
+# 1. One-time machine setup (idempotent — safe to re-run)
+pwsh ./setup.ps1
 
-- `flask-web-app/`: Contains the files for the Flask web app project.
-- `pandas-data-analyst/`: Contains the files for the Pandas data analysis project.
+# 2. Close and reopen PowerShell so PATH updates land
 
-## About the Bootcamp
+# 3. Open Jupyter Lab for the notebooks
+just lab
 
-This repository is a testament to the skills and knowledge acquired during the Python bootcamp with Exelerate Asia and K-Youth. It reflects the practical application of Python in two diverse domains - web development and data analysis.
+# — or serve the Flask web app instead (same port, one at a time)
+just serve
+```
 
-Feel free to explore each project directory for in-depth information, code, and resources.
+The app is now at **http://127.0.0.1:8124**. Stop it with `just stop`.
 
----
+## Commands
 
-**Note:** Don't forget to adhere to the API terms of use when working with external APIs.
+Run `just` with no arguments to list every recipe. The ones you'll use daily:
 
-For any questions, suggestions, or collaboration opportunities, please reach out!
+| Command | What it does |
+| --- | --- |
+| `just lab` | Open Jupyter Lab on `http://127.0.0.1:8124` (foreground, Ctrl+C to stop) |
+| `just execute <nb>` | Run one notebook headlessly via nbconvert (executed copy goes to `%TEMP%`) |
+| `just serve` | Serve the Flask web app (`WebApp/script.py`) on `http://127.0.0.1:8124` |
+| `just stop` | Kill only this repo's python processes (Jupyter or Flask) |
+| `just claudex` | Launch Claude Code (Sonnet, all permissions) |
 
-Happy coding! 🐍🚀
+## Troubleshooting
+
+### `just execute` fails on every committed notebook
+
+Expected — each notebook has a real blocker for headless runs: the Joke notebook drives an
+`input()` menu (interactive-only), `Data Analyst.ipynb` reads a hardcoded
+`C:\Users\Admin\Downloads\anime.csv` that is not committed (and has a planning cell with raw
+markdown in a code cell, a `SyntaxError`), and the Country notebook calls the deprecated
+REST Countries v3.1 API. Open them in `just lab` and run cells interactively instead.
+
+### `/country` search always shows the error page
+
+REST Countries retired the v3.1 endpoints the app was built against — they now return a
+"this API version has been deprecated" notice, which `CountriesAPI.createCountry` reports as
+a fetch error. The joke pages still work (JokeAPI v2 is alive). Fixing it means migrating
+`WebApp/script.py` to the current REST Countries API.
+
+### First `just lab` / `just execute` takes minutes
+
+uv is downloading Jupyter (and pandas/matplotlib/seaborn/wordcloud for `execute`) into its
+cache on first use. Later runs reuse the cache and start in seconds.
+
+### Port 8124 already in use
+
+`just lab` and `just serve` share port 8124 — run one at a time. `just stop` kills whichever
+of the two this repo has running (it never touches other projects' servers).
+
+More in [`.docs/06-troubleshooting/common-issues.md`](.docs/06-troubleshooting/common-issues.md).
+
+## Project layout
+
+```
+python-bootcamp-projects/
+  Data Analyst/
+    Data Analyst.ipynb         # Pandas analysis of a Kaggle anime dataset (CSV not committed)
+  WebApp/
+    script.py                  # Flask app — joke + country lookup routes
+    templates/                 # 6 Jinja2 templates (home, joke, country, forms, error)
+    Joke API - Web App.ipynb   # console prototype of the joke client (input()-driven)
+    Country API.ipynb          # console prototype of the country client
+  .docs/                       # numbered documentation set
+  .claude/                     # skills, hooks, settings
+  justfile, setup.ps1
+```
