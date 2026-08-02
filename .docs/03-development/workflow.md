@@ -37,11 +37,11 @@
   them; `.ipynb_checkpoints/` and `__pycache__/` are git-ignored.
 - **Port**: everything serves on 8124 only. Don't hardcode another port.
 - **Quality suite**: `just test` is the test gate — pytest over Flask's `test_client`,
-  fully offline (external HTTP monkeypatched). Note the `/country` test pins the CURRENT
-  broken behavior (deprecated upstream API → error page); migrating the route means
-  replacing that test, not deleting it. `/lint-check` adds the other honest layers
-  (py_compile, serve smoke, placeholder + leftover greps). There is still no
-  linter/formatter.
+  fully offline (external HTTP monkeypatched). The `/country` tests assert the REST
+  Countries **v5** integration (success path with the live-verified `data.objects`
+  shape, no-match, upstream failure, URL builders, demo-key fallback). `/lint-check`
+  adds the other honest layers (py_compile, serve smoke, placeholder + leftover greps).
+  There is still no linter/formatter.
 
 ## Working with Claude Code
 

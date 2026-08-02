@@ -13,14 +13,15 @@
 | Release process | Push to `main` on `github.com/dxiiren/python-bootcamp-projects` |
 
 The Flask app as committed is not production-shaped anyway: it runs under the Flask dev
-server, has no configuration layer, and depends on a deprecated upstream API for the
-country feature.
+server and has almost no configuration layer (the one env knob is
+`RESTCOUNTRIES_API_KEY` for the country feature).
 
 ## If you ever deploy it
 
 Not planned, but the honest checklist would be: pin dependencies in a real manifest
 (pyproject.toml), swap the dev server for a WSGI server, externalise the port/host
-config, and migrate `CountriesAPI` off the retired REST Countries v3.1 endpoints first.
+config, and provision a real REST Countries v5 API key (the committed default is the
+public demo key, which only ever returns the API's sample country).
 
 ## Related docs
 

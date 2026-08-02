@@ -62,7 +62,7 @@ holding a Flask joke/country web app and Jupyter data-analysis notebooks, run th
 
 | Document | What it covers |
 | --- | --- |
-| [common-issues.md](06-troubleshooting/common-issues.md) | Real symptoms hit during verification: notebook execute failures, deprecated API, slow first runs, port/stop quirks |
+| [common-issues.md](06-troubleshooting/common-issues.md) | Real symptoms hit during verification: notebook execute failures, the v5 country API + demo key, slow first runs, port/stop quirks |
 
 ## 07-faq
 

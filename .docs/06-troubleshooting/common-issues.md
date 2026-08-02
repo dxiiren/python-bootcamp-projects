@@ -1,8 +1,9 @@
 # Common issues
 
 > **TL;DR** Every symptom below was hit for real while verifying this kit. Headline items:
-> all three committed notebooks fail `just execute` for real reasons, and the `/country`
-> feature is dead upstream (REST Countries v3.1 deprecated).
+> all three committed notebooks fail `just execute` for real reasons; the `/country`
+> feature runs on REST Countries **v5** (the app was migrated off the retired v3.1) and
+> shows the API's fixed sample country until you export a personal key.
 
 ## `just execute` fails on every committed notebook
 
@@ -12,19 +13,30 @@ Expected — each has a genuine blocker, observed on 2026-08-02:
 | --- | --- | --- |
 | `WebApp/Joke API - Web App.ipynb` | `CellExecutionError` at the `input()` menu | Interactive-only: a headless kernel has no stdin |
 | `Data Analyst/Data Analyst.ipynb` | `FileNotFoundError: C:\Users\Admin\Downloads\anime.csv` in cell 1 | The Kaggle CSV was never committed and the path is hardcoded to the original author's machine. Cell 2 would then fail anyway: it is a planning note written as raw markdown in a code cell (`- Best Anime for each year (top 1,2,3)` → `SyntaxError`) |
-| `WebApp/Country API.ipynb` | `AttributeError: 'dict' object has no attribute 'printCountryData'` | The deprecated REST Countries v3.1 API returns a non-200/notice response, `createCountry` returns its error dict, and the notebook calls a `Country` method on it |
+| `WebApp/Country API.ipynb` | `AttributeError: 'dict' object has no attribute 'printCountryData'` | The notebook still carries its own inline copy of the 2023 v3.1 client (notebooks are preserved as-submitted): the retired API returns a deprecation notice, `createCountry` returns its error dict, and the notebook calls a `Country` method on it. The Flask app's `CountriesAPI` was migrated to v5 and works |
 
 Work interactively instead: `just lab`, open the notebook, run cells one by one. To make
 the Data Analyst notebook run, download the
 [Kaggle anime dataset](https://www.kaggle.com/datasets/vishalmane10/anime-dataset-2022/)
 and fix the `file_path` in cell 1 to where you saved it.
 
-## `/country` search always shows the error page
+## `/country` always shows the same country (Canada) — FIXED (was: always the error page)
 
-REST Countries retired the v3.1 endpoints the app was built against — they now return a
-deprecation notice, which `CountriesAPI.createCountry` reports as a fetch error. The joke
-pages still work (JokeAPI v2 is alive; verified `/random_joke` returns 200). Fixing it
-means migrating `WebApp/script.py` to the current REST Countries API.
+Historical: REST Countries retired the keyless v1–v4 endpoints, so `/country` used to
+error on every search. `WebApp/script.py` now targets **v5**
+(`api.restcountries.com/countries/v5`, bearer-token auth, `data.objects` payloads —
+verified live 2026-08-02). Out of the box it authenticates with the public no-account
+demo key, which answers every query with the API's fixed sample country (Canada) — that
+is the expected demo behavior, not a bug. For real results, export a free personal key
+before serving:
+
+```powershell
+$env:RESTCOUNTRIES_API_KEY = "rc_live_..."   # https://restcountries.com/sign-up
+just serve
+```
+
+If `/country` lands on the **error page**: a 401 means the key is missing/expired
+upstream; "No country matched that search." means the (real-keyed) search found nothing.
 
 ## First `just lab` / `just execute` / `just serve` takes minutes
 

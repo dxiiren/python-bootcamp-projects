@@ -27,10 +27,11 @@ Full detail in
 
 ## Is the `/country` feature supposed to work?
 
-Not anymore. REST Countries v3.1 was deprecated upstream after the bootcamp; every search
-lands on the error page. It is documented as a known issue rather than silently patched —
-fixing it means migrating `CountriesAPI` to the current API, which is a real code change
-(PR-worthy), not a config toggle.
+Yes — it was migrated to REST Countries **v5** after the keyless v1–v4 endpoints were
+retired upstream. With no configuration it authenticates using the public demo key, so
+every search returns the API's fixed sample country (Canada); export a free personal key
+as `RESTCOUNTRIES_API_KEY` for real lookups. The Country **notebook** still carries the
+old v3.1 client and remains broken by design (notebooks are preserved as submitted).
 
 ## Why does `just execute` write to `%TEMP%`?
 

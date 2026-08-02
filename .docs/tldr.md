@@ -5,12 +5,13 @@ need.
 
 ## [01-overview/project-overview.md](01-overview/project-overview.md)
 
-Two beginner projects from the 2023 Exelerate Asia / K-Youth Python bootcamp, preserved
-as-is. `WebApp/` is a Flask app with four routes serving jokes (JokeAPI — still works) and
-country lookups (REST Countries v3.1 — deprecated upstream, so `/country` always errors).
-`Data Analyst/` is a Pandas/Matplotlib/Seaborn notebook over a Kaggle anime dataset whose
-CSV was never committed. Two more notebooks are console prototypes of the API clients.
-Treat the code as a historical artifact — fix, don't restyle.
+Two beginner projects from the 2023 Exelerate Asia / K-Youth Python bootcamp. `WebApp/`
+is a Flask app with four routes serving jokes (JokeAPI) and country lookups (REST
+Countries — migrated to **v5** after v3.1 was retired upstream; ships the public demo
+key, `RESTCOUNTRIES_API_KEY` for real data). `Data Analyst/` is a
+Pandas/Matplotlib/Seaborn notebook over a Kaggle anime dataset whose CSV was never
+committed. Two more notebooks are console prototypes of the API clients (preserved
+as-submitted). Treat the code as a historical artifact — fix, don't restyle.
 
 ## [01-overview/architecture.md](01-overview/architecture.md)
 
@@ -27,7 +28,8 @@ requirements.txt on purpose — each `just` recipe injects its own deps via
 reopen PowerShell, then `just lab` for notebooks or `just serve` for the Flask app, both on
 `http://127.0.0.1:8124`. First run downloads packages into the uv cache — minutes once,
 seconds after. A working install shows the home page at `/`, a joke at `/random_joke`, and
-(expectedly) the error page for `/country` searches.
+a country table at `/country` (the demo key's fixed sample until you export
+`RESTCOUNTRIES_API_KEY`).
 
 ## [03-development/workflow.md](03-development/workflow.md)
 
@@ -42,8 +44,8 @@ Commits, no attribution footers), PR via `/create-pr`. New imports go into the j
 
 There is nothing to deploy: no CI/CD, no hosting, no build artifact — the repo runs
 locally only, and "shipping" is a push to `main`. The doc also lists what a real
-deployment would require (a manifest, a WSGI server, config, and migrating off the dead
-country API) so nobody mistakes the dev server for a target.
+deployment would require (a manifest, a WSGI server, config, and a real REST Countries
+v5 key) so nobody mistakes the dev server for a target.
 
 ## [05-reference/commands.md](05-reference/commands.md)
 
@@ -63,14 +65,15 @@ paths are generated-and-ignored (`.ipynb_checkpoints/`, `__pycache__/`, `.pytest
 ## [06-troubleshooting/common-issues.md](06-troubleshooting/common-issues.md)
 
 The real failures, with observed errors: all three notebooks fail `just execute`
-(`input()` menu; hardcoded missing CSV + a markdown-in-code-cell SyntaxError; dead API →
-`AttributeError` on the error dict), `/country` always errors (v3.1 deprecated), first runs
-are slow (uv cache fill), port 8124 is shared, and `just stop` depends on the absolute
-`--app` path staying absolute.
+(`input()` menu; hardcoded missing CSV + a markdown-in-code-cell SyntaxError; the
+notebook's inline v3.1 client → `AttributeError` on the error dict), `/country` shows
+the demo key's fixed sample country until a real `RESTCOUNTRIES_API_KEY` is set (the
+old always-errors v3.1 behavior is FIXED), first runs are slow (uv cache fill), port
+8124 is shared, and `just stop` depends on the absolute `--app` path staying absolute.
 
 ## [07-faq/faq.md](07-faq/faq.md)
 
 Why there's no requirements.txt (preserved repo; uv injects per-run), why one shared port
 (one port per repo in this workspace), why headless notebook runs fail (real blockers, not
-config), why `/country` stays visibly broken (documented known issue vs silent patch), and
+config), how `/country` works now (v5 + demo key; personal key for real data), and
 where Claude Code rules live (`CLAUDE.md` + `.claude/skills/`).

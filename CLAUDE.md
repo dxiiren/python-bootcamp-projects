@@ -20,9 +20,9 @@ and a Pandas/Matplotlib/Seaborn analysis of a Kaggle anime dataset.
 | --- | --- | --- |
 | Language | Python 3 (uv-managed) | No requirements.txt/pyproject — every recipe injects deps via `uv run --with ...` |
 | Web app | Flask + requests (`WebApp/script.py`) | Routes `/`, `/random_joke`, `/specific_joke`, `/country`; classes `JokeAPI`, `CountriesAPI`, `Country`; Jinja2 templates in `WebApp/templates/` |
-| External APIs | JokeAPI v2 · REST Countries v3.1 | JokeAPI works; REST Countries **v3.1 is deprecated upstream** — `/country` and the Country notebook fail against the live API |
+| External APIs | JokeAPI v2 · REST Countries **v5** | JokeAPI works keyless. REST Countries retired keyless v1–v4; the Flask app targets v5 (`api.restcountries.com/countries/v5`, `Bearer` auth via `RESTCOUNTRIES_API_KEY`, defaulting to the public demo key that always returns the sample country). The Country **notebook** still carries the old v3.1 client and fails (notebooks preserved as submitted) |
 | Notebooks | Jupyter (Lab via `just lab`) | `Data Analyst.ipynb` (Pandas/Matplotlib/Seaborn/WordCloud, Kaggle anime CSV not committed) + two WebApp console prototypes |
-| Tests | pytest (`just test`) | `tests/test_app.py` — Flask `test_client`, all external HTTP monkeypatched (offline). The dead `/country` route has an honest current-behavior test (asserts the error page), not a fake pass |
+| Tests | pytest (`just test`) | `tests/test_app.py` — Flask `test_client`, all external HTTP monkeypatched (offline). `/country` is covered end to end against the live-verified v5 payload shape (success, no-match, upstream failure, URL builders, demo-key fallback) |
 | Task runner | just | wraps `uv run` — see `justfile` |
 
 ### Project Structure
@@ -70,8 +70,9 @@ python-bootcamp-projects/
 - Headless `just execute` currently fails on all three committed notebooks, each for a real
   reason: the Joke notebook drives an `input()` menu, `Data Analyst.ipynb` reads a hardcoded
   `C:\Users\Admin\Downloads\anime.csv` (dataset not committed) and has a planning cell with
-  raw markdown in a code cell, and the Country notebook hits the deprecated REST Countries
-  v3.1 API. Use `just lab` to run them interactively cell by cell.
+  raw markdown in a code cell, and the Country notebook still carries its own inline copy of
+  the retired REST Countries v3.1 client (the Flask app was migrated to v5; notebooks are
+  preserved as submitted — do not "fix" them). Use `just lab` to run them interactively.
 - `just execute` writes the executed copy to `%TEMP%` — never commit executed notebook outputs.
 
 ## Project Skills

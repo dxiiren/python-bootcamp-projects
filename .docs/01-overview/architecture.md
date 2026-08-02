@@ -17,14 +17,15 @@ Browser ──> Flask route (script.py) ──> JokeAPI / CountriesAPI (requests
 | Piece | Role | Key details |
 | --- | --- | --- |
 | `JokeAPI` | Joke fetching + formatting | `base_url = https://v2.jokeapi.dev/joke/`; `randomJoke()` and `specificJoke(**kwargs)` build query strings (blacklist flags, category, `amount`, `lang`); `displayJoke(url)` handles single/twopart and multi-joke responses |
-| `CountriesAPI` | Country search URL builders + fetch | `searchByName/Currency/Language/CapitalCity` return URLs under `https://restcountries.com/v3.1`; `createCountry(url)` GETs, picks `response.json()[0]`, and builds a `Country` |
+| `CountriesAPI` | Country search URL builders + fetch | `searchByName/Currency/Language/CapitalCity` return v5 search-by-property URLs under `https://api.restcountries.com/countries/v5` (`names.common?q=`, `currencies?q=`, `languages?q=`, `capitals?q=`); `createCountry(url)` GETs with a `Bearer` key (`RESTCOUNTRIES_API_KEY`, defaulting to the public demo key), picks `data.objects[0]`, maps the v5 arrays (currencies/capitals/languages) onto the flat dict `Country` expects, and builds a `Country` |
 | `Country` | Display model | name, currencies, capital, region, subregion, languages, population, timezones + `printCountryData()` |
 | Routes | Controller layer | `/`, `/random_joke`, `/specific_joke` (GET form / POST result), `/country` (GET form / POST result) |
 | Templates | Views (`WebApp/templates/`) | `base` (shared shell: amber header, nav, footer) extended by `home`, `joke`, `specific_joke_form`, `country_form`, `country`, `error` — Tailwind CSS via CDN |
 
 Error handling pattern: API classes return a `{"error": ...}` dict on failure; routes check
-for it and render `error.html`. (The Country notebook prototype skips that check — which is
-why it crashes now that the API is deprecated.)
+for it and render `error.html`. (The Country notebook prototype skips that check — and
+still carries the old v3.1 client, which is why it crashes against the retired API while
+the migrated Flask app works.)
 
 ## Dependency model (why there is no requirements.txt)
 

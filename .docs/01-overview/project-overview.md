@@ -32,11 +32,14 @@ asked, but do not restyle or modernise it uninvited.
 
 Classes: `JokeAPI` (URL building + response formatting for
 [JokeAPI v2](https://jokeapi.dev/)), `CountriesAPI` (search-URL builders for
-[REST Countries](https://restcountries.com/) v3.1), `Country` (a display model built from
-one API response). Errors funnel to `error.html`.
+[REST Countries](https://restcountries.com/) **v5** with bearer-key auth), `Country` (a
+display model built from one API response). Errors funnel to `error.html`.
 
-**Known issue:** REST Countries **v3.1 was deprecated upstream** — the `/country` search
-now always lands on the error page, and the Country notebook crashes. JokeAPI still works.
+**Note on the country API:** REST Countries retired its keyless v1–v4 endpoints; the
+Flask app was migrated to v5 and works. It ships the public demo key (every search then
+returns the API's fixed sample country) — export `RESTCOUNTRIES_API_KEY` with a free
+personal key for real data. The Country **notebook** still carries the old v3.1 client
+and crashes (notebooks are preserved as submitted).
 Details in [`../06-troubleshooting/common-issues.md`](../06-troubleshooting/common-issues.md).
 
 ## The notebooks
@@ -45,7 +48,7 @@ Details in [`../06-troubleshooting/common-issues.md`](../06-troubleshooting/comm
 | --- | --- | --- |
 | `Data Analyst/Data Analyst.ipynb` | Pandas analysis + Matplotlib/Seaborn/WordCloud visualisations of the [Kaggle anime dataset (2022)](https://www.kaggle.com/datasets/vishalmane10/anime-dataset-2022/) | No — reads a hardcoded `C:\Users\Admin\Downloads\anime.csv` (not committed) and has raw markdown in a code cell (SyntaxError) |
 | `WebApp/Joke API - Web App.ipynb` | Console prototype of the joke client, driven by an `input()` menu | No — `input()` has no stdin in a headless kernel |
-| `WebApp/Country API.ipynb` | Console prototype of the country client (hardcoded searches) | No — the deprecated API returns an error dict, and the notebook calls `.printCountryData()` on it |
+| `WebApp/Country API.ipynb` | Console prototype of the country client (hardcoded searches) | No — it still carries the old v3.1 client: the retired API returns an error dict, and the notebook calls `.printCountryData()` on it |
 
 Run them interactively instead: `just lab` opens Jupyter Lab on
 `http://127.0.0.1:8124`.

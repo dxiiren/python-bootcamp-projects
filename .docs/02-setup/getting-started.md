@@ -55,7 +55,7 @@ script:
 | --- | --- |
 | `just serve` then GET `/` | 200, home page titled "Welcome to Akmal's Web App Project" |
 | `/random_joke` | 200 with a joke (JokeAPI is live) |
-| `/country` search | The error page — expected; REST Countries v3.1 is deprecated (see troubleshooting) |
+| `/country` search | 200 with a country table — the API's fixed sample country (Canada) under the bundled demo key; real results need `RESTCOUNTRIES_API_KEY` (see troubleshooting) |
 | `just lab` | Jupyter Lab answers on 8124 (the root URL 302-redirects to `/lab`) |
 
 ## Related docs
