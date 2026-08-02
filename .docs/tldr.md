@@ -15,8 +15,9 @@ Treat the code as a historical artifact — fix, don't restyle.
 ## [01-overview/architecture.md](01-overview/architecture.md)
 
 One file (`WebApp/script.py`) holds everything: `JokeAPI` and `CountriesAPI` build URLs and
-fetch with `requests`, `Country` is the display model, four routes render six Bootstrap
-templates, and failures funnel to `error.html` as `{"error": ...}` dicts. There is no
+fetch with `requests`, `Country` is the display model, four routes render six Tailwind-
+styled Jinja2 templates (all extending a shared `base.html` shell), and failures funnel to
+`error.html` as `{"error": ...}` dicts. There is no
 requirements.txt on purpose — each `just` recipe injects its own deps via
 `uv run --with ...`. Everything serves on port 8124, one server at a time.
 
@@ -53,7 +54,8 @@ plus the occasional commands (`setup.ps1`, the `py_compile` gate) and the `PORT`
 
 ## [05-reference/project-layout.md](05-reference/project-layout.md)
 
-Annotated tree: the two project folders, the six templates, the pytest suite (`tests/`),
+Annotated tree: the two project folders, the seven templates (shared base + six pages),
+the pytest suite (`tests/`),
 and the kit files — plus the deliberate absences (no manifest, no committed CSV) and which
 paths are generated-and-ignored (`.ipynb_checkpoints/`, `__pycache__/`, `.pytest_cache/`,
 `.mcp.json`).

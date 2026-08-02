@@ -164,7 +164,7 @@ def test_country_search_fails_against_deprecated_api(client, monkeypatch):
         data={"search_type": "name", "search_term": "malaysia"},
     )
     assert response.status_code == 200  # the error page itself renders fine
-    assert b"<h1 class=\"text-center\">Error</h1>" in response.data
+    assert b">Error</h1>" in response.data  # the Error heading renders (class-agnostic)
     assert b"Failed to fetch a country from the Country API." in response.data
 
 

@@ -13,7 +13,8 @@ python-bootcamp-projects/
   WebApp/
     script.py                  # The whole Flask app: JokeAPI, CountriesAPI, Country + 4 routes
     templates/
-      home.html                # Landing page linking the three features
+      base.html                # Shared Tailwind-CDN shell (amber header, nav, footer)
+      home.html                # Landing page linking the three features (extends base)
       joke.html                # Renders fetched joke text
       specific_joke_form.html  # Amount / language / category form
       country_form.html        # Search-type + term form

@@ -33,7 +33,7 @@ python-bootcamp-projects/
     Data Analyst.ipynb         # Pandas analysis of a Kaggle anime dataset (CSV not committed)
   WebApp/
     script.py                  # Flask app — joke + country lookup routes
-    templates/                 # 6 Jinja2 templates (home, joke, country, forms, error)
+    templates/                 # shared base.html + 6 page templates (home, joke, country, forms, error)
     Joke API - Web App.ipynb   # console prototype of the joke client (input()-driven)
     Country API.ipynb          # console prototype of the country client
   tests/

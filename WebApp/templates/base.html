@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Akmal Web App{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        .btn {
+            @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-300 transition-colors hover:bg-slate-50 hover:text-amber-700
+        }
+        .btn-primary {
+            @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-amber-700
+        }
+        label {
+            @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600
+        }
+        .field {
+            @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200
+        }
+    </style>
+</head>
+<body class="flex min-h-screen flex-col bg-slate-100 text-slate-800 antialiased">
+    <header class="bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md">
+        <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <a href="/" class="flex items-center gap-3">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-xl ring-1 ring-white/25">🐍</span>
+                <span>
+                    <span class="block text-xl font-bold tracking-tight">Akmal Web App</span>
+                    <span class="block text-xs text-amber-100">Flask playground — jokes &amp; country lookups</span>
+                </span>
+            </a>
+            <nav class="flex flex-wrap gap-2 text-sm font-semibold">
+                <a href="/random_joke" class="rounded-lg bg-white/10 px-3 py-1.5 ring-1 ring-white/20 transition-colors hover:bg-white/20">Random Joke</a>
+                <a href="/specific_joke" class="rounded-lg bg-white/10 px-3 py-1.5 ring-1 ring-white/20 transition-colors hover:bg-white/20">Specific Joke</a>
+                <a href="/country" class="rounded-lg bg-white/10 px-3 py-1.5 ring-1 ring-white/20 transition-colors hover:bg-white/20">Search Country</a>
+            </nav>
+        </div>
+    </header>
+    <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="py-6 text-center text-xs text-slate-400">
+        Python bootcamp project — Flask · JokeAPI · REST Countries
+    </footer>
+</body>
+</html>

@@ -1,7 +1,8 @@
 # Architecture
 
 > **TL;DR** One Flask file (`WebApp/script.py`) holds two API-client classes, a display
-> model and four routes; six Jinja2 templates render the pages; dependencies are injected
+> model and four routes; a shared `base.html` layout plus six Jinja2 page templates
+> (Tailwind CDN) render the pages; dependencies are injected
 > per-run by `uv run --with ...` (there is deliberately no requirements.txt). The
 > notebooks are standalone and share nothing with the app.
 
@@ -19,7 +20,7 @@ Browser ──> Flask route (script.py) ──> JokeAPI / CountriesAPI (requests
 | `CountriesAPI` | Country search URL builders + fetch | `searchByName/Currency/Language/CapitalCity` return URLs under `https://restcountries.com/v3.1`; `createCountry(url)` GETs, picks `response.json()[0]`, and builds a `Country` |
 | `Country` | Display model | name, currencies, capital, region, subregion, languages, population, timezones + `printCountryData()` |
 | Routes | Controller layer | `/`, `/random_joke`, `/specific_joke` (GET form / POST result), `/country` (GET form / POST result) |
-| Templates | Views (`WebApp/templates/`) | `home`, `joke`, `specific_joke_form`, `country_form`, `country`, `error` — Bootstrap 4.5 via CDN |
+| Templates | Views (`WebApp/templates/`) | `base` (shared shell: amber header, nav, footer) extended by `home`, `joke`, `specific_joke_form`, `country_form`, `country`, `error` — Tailwind CSS via CDN |
 
 Error handling pattern: API classes return a `{"error": ...}` dict on failure; routes check
 for it and render `error.html`. (The Country notebook prototype skips that check — which is
