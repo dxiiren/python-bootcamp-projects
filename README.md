@@ -5,8 +5,42 @@ preserved as-is: a Flask web app that serves random/custom jokes (JokeAPI) and c
 lookups (REST Countries), plus Jupyter notebooks — console prototypes of both API clients
 and a Pandas/Matplotlib/Seaborn analysis of a Kaggle anime dataset.
 
+This repo is the coursework behind the developer's **K-Youth Academy** bootcamp
+certificate — K-Youth is a Khazanah Nasional talent-development programme, and this
+Python track was delivered by Exelerate Asia in 2023. The code is kept as submitted.
+
 > **New developer? Start with [`.docs/tldr.md`](.docs/tldr.md)** — every doc summarised on one
 > page. The full guide lives in [`.docs/`](.docs/README.md).
+
+## What's inside
+
+| Project | Where | What it shows | Run status |
+| --- | --- | --- | --- |
+| Flask web app | `WebApp/script.py` | Routes, forms, Jinja2 templates, `requests` against external REST APIs (`JokeAPI` / `CountriesAPI` classes) | **Runs** — `just serve`, then browse `/` and `/random_joke` (JokeAPI v2 is alive). `/country` always errors: REST Countries v3.1 was deprecated upstream |
+| Data analysis notebook | `Data Analyst/Data Analyst.ipynb` | Pandas + Matplotlib/Seaborn/WordCloud over the [Kaggle anime dataset (2022)](https://www.kaggle.com/datasets/vishalmane10/anime-dataset-2022/) | **Data-bound** — reads a hardcoded, uncommitted `anime.csv`, so `just execute` fails; download the dataset and run it in `just lab`. Committed cell outputs still show the charts (below) |
+| Joke console prototype | `WebApp/Joke API - Web App.ipynb` | The joke client as an `input()`-driven console menu | **Interactive-only** — a headless kernel has no stdin; run it cell by cell in `just lab` |
+| Country console prototype | `WebApp/Country API.ipynb` | The country client with hardcoded searches | **Blocked upstream** — the deprecated REST Countries v3.1 API returns an error notice the notebook can't handle |
+
+Full failure details (observed, not guessed) are in
+[`.docs/06-troubleshooting/common-issues.md`](.docs/06-troubleshooting/common-issues.md).
+
+## Screenshots
+
+The Flask app served locally with `just serve` (`http://127.0.0.1:8124`):
+
+| Home (`/`) | Random joke (`/random_joke`) |
+| --- | --- |
+| ![Flask home page](docs/images/flask-home.png) | ![Random joke page, live JokeAPI response](docs/images/flask-random-joke.png) |
+
+And two of the eleven visualisations from the committed outputs of
+`Data Analyst/Data Analyst.ipynb` (the notebook's own saved cell outputs — the source CSV
+itself is not committed):
+
+![Word cloud of anime genre tags, from Data Analyst.ipynb](docs/images/anime-genre-wordcloud.png)
+
+![Top 10 anime studios by title count, from Data Analyst.ipynb](docs/images/anime-top-studios.png)
+
+*Charts rendered by `Data Analyst/Data Analyst.ipynb` over the Kaggle anime dataset (2022).*
 
 ## Prerequisites
 
@@ -92,6 +126,8 @@ python-bootcamp-projects/
     templates/                 # 6 Jinja2 templates (home, joke, country, forms, error)
     Joke API - Web App.ipynb   # console prototype of the joke client (input()-driven)
     Country API.ipynb          # console prototype of the country client
+  docs/
+    images/                    # README screenshots + charts extracted from notebook outputs
   .docs/                       # numbered documentation set
   .claude/                     # skills, hooks, settings
   justfile, setup.ps1
