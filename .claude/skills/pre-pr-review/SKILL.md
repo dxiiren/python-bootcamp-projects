@@ -8,7 +8,8 @@ model: opus
 
 Self-review your feature-branch diff **before** opening a PR. This is a preserved bootcamp
 repo — a small Flask app (`WebApp/script.py` + 6 Jinja2 templates) and three Jupyter
-notebooks, with no tests and no dependency manifest — the goal is to catch correctness,
+notebooks, with an offline pytest suite (`just test`) but no dependency manifest — the
+goal is to catch correctness,
 error-path, and sync problems early, not to restyle preserved bootcamp code.
 
 ## Trigger

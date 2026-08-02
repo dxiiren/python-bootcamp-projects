@@ -38,6 +38,15 @@ execute nb: _require-uv
 serve: _require-uv
     uv run --with flask,requests flask --app '{{justfile_directory()}}\WebApp\script.py' run --port {{port}}
 
+# ─── Tests ───────────────────────────────────────────────
+
+# The --with list is the app's own deps (flask, requests) plus pytest; external
+# HTTP is monkeypatched inside the tests, so the suite runs offline — no server,
+# no internet, no port. Safe to run while `just serve` or `just lab` is up.
+# Run the pytest suite (tests/test_app.py) against WebApp/script.py.
+test: _require-uv
+    uv run --with flask,requests,pytest pytest tests -q
+
 # ─── Housekeeping ────────────────────────────────────────
 
 # Stop only THIS project's Jupyter/Flask server (matches by repo path on the command line).

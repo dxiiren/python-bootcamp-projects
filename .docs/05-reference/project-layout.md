@@ -21,6 +21,8 @@ python-bootcamp-projects/
       error.html               # Error page every failure funnels to
     Joke API - Web App.ipynb   # Console prototype of the joke client (input()-driven)
     Country API.ipynb          # Console prototype of the country client (hardcoded searches)
+  tests/
+    test_app.py                # pytest suite — Flask test_client, external HTTP monkeypatched
   .docs/                       # This documentation set (01-overview ... 07-faq + tldr)
   .claude/                     # Claude Code kit: skills, hooks/statusline, settings, memory
   .mcp.json.stub               # Committed MCP config template (real .mcp.json is git-ignored)
@@ -35,7 +37,7 @@ python-bootcamp-projects/
 | Missing | Why |
 | --- | --- |
 | `requirements.txt` / `pyproject.toml` | Preserved repo; deps are injected per-run via `uv run --with ...` in the justfile |
-| Tests, linter configs | Never existed; `/lint-check` runs the honest substitutes |
+| Linter configs | Never existed; `/lint-check` runs the honest substitutes. (Tests DO exist now: `tests/test_app.py` via `just test`) |
 | `anime.csv` | The Kaggle dataset was never committed — download it yourself to run the analysis notebook |
 | CI workflows | Local-only repo |
 
@@ -45,6 +47,7 @@ python-bootcamp-projects/
 | --- | --- | --- |
 | `.ipynb_checkpoints/` | Jupyter autosave | ignored |
 | `__pycache__/` | Python imports | ignored |
+| `.pytest_cache/` | `just test` | ignored |
 | `.mcp.json`, `.claude/settings.local.json`, `.claude/workspace/` | per-dev Claude config/scratch | ignored |
 | `%TEMP%\<notebook>.ipynb` | `just execute` output | outside the repo by design |
 

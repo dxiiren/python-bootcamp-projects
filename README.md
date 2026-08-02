@@ -83,8 +83,30 @@ Run `just` with no arguments to list every recipe. The ones you'll use daily:
 | `just lab` | Open Jupyter Lab on `http://127.0.0.1:8124` (foreground, Ctrl+C to stop) |
 | `just execute <nb>` | Run one notebook headlessly via nbconvert (executed copy goes to `%TEMP%`) |
 | `just serve` | Serve the Flask web app (`WebApp/script.py`) on `http://127.0.0.1:8124` |
+| `just test` | Run the pytest suite (`tests/`) — offline, no server or port needed |
 | `just stop` | Kill only this repo's python processes (Jupyter or Flask) |
 | `just claudex` | Launch Claude Code (Sonnet, all permissions) |
+
+## Testing
+
+```powershell
+just test
+# equivalent: uv run --with flask,requests,pytest pytest tests -q
+```
+
+`tests/test_app.py` exercises the Flask app through Flask's `test_client` — no server, no
+port, and **no internet**: every external HTTP call (JokeAPI, REST Countries) is
+monkeypatched, so the suite is deterministic and safe to run while `just serve` is up.
+Covered: `/` welcome page, `/random_joke` (single + two-part + upstream-failure shapes),
+`/specific_joke` (form + POST with URL-building assertions), `/country` (form + invalid
+search type), and the pure `CountriesAPI` URL builders.
+
+One test deserves a callout: `test_country_search_fails_against_deprecated_api` pins the
+**current broken behavior** of `/country` — REST Countries v3.1 is deprecated upstream, so
+the test simulates the observed deprecation response and asserts the app renders its error
+page. It is an honest regression lock, not a fake pass; if `/country` is ever migrated to
+the current REST Countries API, that test should fail and be replaced with a real
+success-path test.
 
 ## Troubleshooting
 
@@ -126,6 +148,8 @@ python-bootcamp-projects/
     templates/                 # 6 Jinja2 templates (home, joke, country, forms, error)
     Joke API - Web App.ipynb   # console prototype of the joke client (input()-driven)
     Country API.ipynb          # console prototype of the country client
+  tests/
+    test_app.py                # pytest suite for the Flask app (offline, HTTP monkeypatched)
   docs/
     images/                    # README screenshots + charts extracted from notebook outputs
   .docs/                       # numbered documentation set

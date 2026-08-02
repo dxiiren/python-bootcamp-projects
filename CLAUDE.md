@@ -22,6 +22,7 @@ and a Pandas/Matplotlib/Seaborn analysis of a Kaggle anime dataset.
 | Web app | Flask + requests (`WebApp/script.py`) | Routes `/`, `/random_joke`, `/specific_joke`, `/country`; classes `JokeAPI`, `CountriesAPI`, `Country`; Jinja2 templates in `WebApp/templates/` |
 | External APIs | JokeAPI v2 · REST Countries v3.1 | JokeAPI works; REST Countries **v3.1 is deprecated upstream** — `/country` and the Country notebook fail against the live API |
 | Notebooks | Jupyter (Lab via `just lab`) | `Data Analyst.ipynb` (Pandas/Matplotlib/Seaborn/WordCloud, Kaggle anime CSV not committed) + two WebApp console prototypes |
+| Tests | pytest (`just test`) | `tests/test_app.py` — Flask `test_client`, all external HTTP monkeypatched (offline). The dead `/country` route has an honest current-behavior test (asserts the error page), not a fake pass |
 | Task runner | just | wraps `uv run` — see `justfile` |
 
 ### Project Structure
@@ -35,6 +36,8 @@ python-bootcamp-projects/
     templates/                 # 6 Jinja2 templates (home, joke, country, forms, error)
     Joke API - Web App.ipynb   # console prototype of the joke client (input()-driven)
     Country API.ipynb          # console prototype of the country client
+  tests/
+    test_app.py                # pytest suite (offline — external HTTP monkeypatched)
   .docs/                       # numbered documentation set
   .claude/                     # skills, hooks, settings
   justfile, setup.ps1

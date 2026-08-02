@@ -30,11 +30,12 @@ seconds after. A working install shows the home page at `/`, a joke at `/random_
 
 ## [03-development/workflow.md](03-development/workflow.md)
 
-Branch off `main`, edit, then verify with the gate matching your change: `py_compile` +
-`just serve` + a route check for app code, an interactive cell run in `just lab` for
-notebooks, a re-run for tooling. `just stop` before switching servers. Commit via the
-`/commit` skill (Conventional Commits, no attribution footers), PR via `/create-pr`.
-New imports go into the justfile's `--with` list in the same commit.
+Branch off `main`, edit, then verify with the gate matching your change: `just test`
+(offline pytest — external HTTP monkeypatched) + `just serve` + a route check for app
+code, an interactive cell run in `just lab` for notebooks, a re-run for tooling.
+`just stop` before switching servers. Commit via the `/commit` skill (Conventional
+Commits, no attribution footers), PR via `/create-pr`. New imports go into the justfile's
+`--with` list in the same commit.
 
 ## [04-deployment/deployment.md](04-deployment/deployment.md)
 
@@ -46,15 +47,16 @@ country API) so nobody mistakes the dev server for a target.
 ## [05-reference/commands.md](05-reference/commands.md)
 
 The recipe table: `just lab` / `just serve` (both :8124, one at a time), `just execute
-'<nb>'` (headless nbconvert, output to `%TEMP%`), `just stop` (project-scoped kill),
-`just claudex/claudeo/claudeh` (Claude Code tiers), plus the occasional commands
-(`setup.ps1`, the `py_compile` gate) and the `PORT` override.
+'<nb>'` (headless nbconvert, output to `%TEMP%`), `just test` (offline pytest suite),
+`just stop` (project-scoped kill), `just claudex/claudeo/claudeh` (Claude Code tiers),
+plus the occasional commands (`setup.ps1`, the `py_compile` gate) and the `PORT` override.
 
 ## [05-reference/project-layout.md](05-reference/project-layout.md)
 
-Annotated tree: the two project folders, the six templates, and the kit files — plus the
-deliberate absences (no manifest, no tests, no committed CSV) and which paths are
-generated-and-ignored (`.ipynb_checkpoints/`, `__pycache__/`, `.mcp.json`).
+Annotated tree: the two project folders, the six templates, the pytest suite (`tests/`),
+and the kit files — plus the deliberate absences (no manifest, no committed CSV) and which
+paths are generated-and-ignored (`.ipynb_checkpoints/`, `__pycache__/`, `.pytest_cache/`,
+`.mcp.json`).
 
 ## [06-troubleshooting/common-issues.md](06-troubleshooting/common-issues.md)
 

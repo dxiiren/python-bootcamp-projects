@@ -3,8 +3,8 @@
 > **TL;DR** Two beginner Python projects from the Exelerate Asia / K-Youth Python bootcamp
 > (2023), preserved as-is: a Flask web app that serves jokes (JokeAPI) and country lookups
 > (REST Countries), and a Pandas/Matplotlib/Seaborn analysis of a Kaggle anime dataset,
-> plus two console-prototype notebooks. No manifest, no tests, no CI — everything runs
-> through `uv` + `just`.
+> plus two console-prototype notebooks. No manifest, no CI — everything runs through
+> `uv` + `just`; an offline pytest suite (`just test`) guards the Flask app.
 
 ## What this repo is
 

@@ -1,9 +1,9 @@
 # Development workflow
 
 > **TL;DR** Branch off `main`, edit, verify with the same commands every time
-> (`py_compile` for the app, `just serve` + a browser/curl check, `just lab` for
-> notebooks), commit with Conventional Commits via `/commit`, PR via `/create-pr`.
-> Everything day-2 is a `just` recipe — run `just` to list them.
+> (`just test` for the app — offline pytest — plus `just serve` + a browser/curl check,
+> `just lab` for notebooks), commit with Conventional Commits via `/commit`, PR via
+> `/create-pr`. Everything day-2 is a `just` recipe — run `just` to list them.
 
 ## The loop
 
@@ -15,7 +15,8 @@
 
    | You touched | Gate |
    | --- | --- |
-   | `WebApp/script.py` / templates | `uv run --no-project python -m py_compile WebApp/script.py` exits 0, then `just serve` and check the touched route on `http://127.0.0.1:8124` |
+   | `WebApp/script.py` / templates | `just test` green (offline pytest suite), then `just serve` and check the touched route on `http://127.0.0.1:8124` |
+   | `tests/` | `just test` green; a new route/behavior gets a test in the same branch |
    | A notebook | Re-run its cells top-to-bottom in `just lab`; `just execute '<nb>'` only works for notebooks free of `input()`/missing-data/dead-API blockers (currently: none of the committed three — see troubleshooting) |
    | `justfile` / `setup.ps1` | Run the recipe / re-run `pwsh ./setup.ps1` (must stay idempotent, all `[OK]`) |
 
@@ -35,9 +36,12 @@
 - **Notebook hygiene**: `just execute` writes executed copies to `%TEMP%` — never commit
   them; `.ipynb_checkpoints/` and `__pycache__/` are git-ignored.
 - **Port**: everything serves on 8124 only. Don't hardcode another port.
-- **Quality suite**: `/lint-check` runs the honest layers this repo has (py_compile,
-  serve smoke, placeholder + leftover greps). There is no linter/formatter/test runner to
-  invoke.
+- **Quality suite**: `just test` is the test gate — pytest over Flask's `test_client`,
+  fully offline (external HTTP monkeypatched). Note the `/country` test pins the CURRENT
+  broken behavior (deprecated upstream API → error page); migrating the route means
+  replacing that test, not deleting it. `/lint-check` adds the other honest layers
+  (py_compile, serve smoke, placeholder + leftover greps). There is still no
+  linter/formatter.
 
 ## Working with Claude Code
 

@@ -12,6 +12,7 @@
 | `just lab` | Jupyter Lab on `http://127.0.0.1:8124` | Foreground; Ctrl+C or `just stop`. Root URL 302-redirects to `/lab` |
 | `just execute <nb>` | Run one notebook headlessly via nbconvert | Executed copy goes to `%TEMP%` — never commit it. Quote paths with spaces: `just execute 'WebApp/Country API.ipynb'`. All three committed notebooks currently fail for documented reasons |
 | `just serve` | Flask app on `http://127.0.0.1:8124` | Foreground. Passes the absolute `--app` path so `just stop` can match the process |
+| `just test` | pytest suite (`tests/test_app.py`) via `uv run --with flask,requests,pytest` | Offline — external HTTP is monkeypatched; no server/port needed, safe alongside `just serve` |
 | `just stop` | Kill this repo's `python.exe` processes | Project-scoped: matches the repo path on the command line; never touches other projects |
 | `just claudex` | Claude Code, Sonnet, all permissions | Also `just claudeo` (Opus), `just claudeh` (Haiku) |
 

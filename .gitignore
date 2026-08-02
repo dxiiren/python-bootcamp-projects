@@ -4,6 +4,9 @@
 # Python bytecode (written by py_compile / imports)
 __pycache__/
 
+# pytest — cache written at the repo root by `just test`
+.pytest_cache/
+
 # Claude Code — per-dev secrets & local overrides (NEVER commit)
 # Real MCP config holds live tokens; commit .mcp.json.stub instead.
 .mcp.json
