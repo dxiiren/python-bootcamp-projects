@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template
+import os
 import requests
 
 app = Flask(__name__)
@@ -82,44 +83,63 @@ class JokeAPI:
 
 #COUNTRY API
 class CountriesAPI:
-    
-    def __init__(self):
-        self.base_url = "https://restcountries.com/v3.1"
 
+    def __init__(self):
+        # REST Countries v5 — v1–v4 (incl. the v3.1 this app was built on) are
+        # deprecated upstream and only return a static deprecation notice now.
+        self.base_url = "https://api.restcountries.com/countries/v5"
+        # v5 requires a bearer key. The public demo key documented at
+        # restcountries.com/docs works without an account but always returns the
+        # same correctly-shaped sample country; export RESTCOUNTRIES_API_KEY
+        # with a (free) personal key to get real data.
+        self.api_key = os.environ.get("RESTCOUNTRIES_API_KEY", "rc_live_demo")
+
+    # Search-by-property endpoints (substring, case-insensitive) — the closest
+    # v5 match to the old v3.1 partial-match lookups this UI was built around.
     def searchByName(self, data):
-        url = self.base_url + "/name/" + data.lower()
+        url = self.base_url + "/names.common?q=" + data.lower()
         return url
-    
+
     def searchByCurrency(self, data):
-        url = self.base_url + "/currency/" + data.lower()
+        url = self.base_url + "/currencies?q=" + data.lower()
         return url
 
     def searchByLanguage(self, data):
-        url = self.base_url + "/lang/" + data.lower()
+        url = self.base_url + "/languages?q=" + data.lower()
         return url
 
     def searchByCapitalCity(self, data):
-        url = self.base_url + "/capital/" + data.lower()
+        url = self.base_url + "/capitals?q=" + data.lower()
         return url
 
     def createCountry(self, url):
-        
+
         try:
             # Call the API by opening the URL and reading the data.
-            response = requests.get(url)
+            response = requests.get(url, headers={"Authorization": f"Bearer {self.api_key}"})
 
             if response.status_code == 200:
-                data = {}
-                response = response.json()[0]
+                # v5 success payloads sit under data.objects (empty when no match).
+                objects = response.json()["data"]["objects"]
+                if not objects:
+                    return {"error": "No country matched that search."}
+                country_data = objects[0]
 
-                data['name'] = response['name']['common']
-                data['currencies'] = dict(response['currencies'])
-                data['capital'] = response['capital'][0]
-                data['region'] = response['region']
-                data['subregion'] = response['subregion']
-                data['languages'] = dict(response['languages'])
-                data['population'] = response['population']
-                data['timezones'] = response['timezones']
+                # Map the v5 shape onto the flat dict Country expects: currencies,
+                # capitals and languages are arrays of objects in v5 (they were
+                # dicts / string lists in v3.1).
+                data = {}
+                data['name'] = country_data['names']['common']
+                data['currencies'] = {c['code']: c for c in country_data['currencies']}
+                data['capital'] = country_data['capitals'][0]['name']
+                data['region'] = country_data['region']
+                data['subregion'] = country_data['subregion']
+                data['languages'] = {
+                    (lang.get('iso639_3') or lang.get('bcp47') or lang['name']): lang['name']
+                    for lang in country_data['languages']
+                }
+                data['population'] = country_data['population']
+                data['timezones'] = country_data['timezones']
 
                 country = Country(data)
                 return country

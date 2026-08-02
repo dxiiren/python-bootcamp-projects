@@ -52,6 +52,50 @@ def patch_requests_get(monkeypatch, status_code, payload):
     return calls
 
 
+def patch_requests_get_capture(monkeypatch, status_code, payload):
+    """Like patch_requests_get, but records (url, kwargs) per call — used by the
+    /country tests to assert the v5 Authorization header is sent."""
+    calls = []
+
+    def fake_get(url, *args, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(status_code, payload)
+
+    monkeypatch.setattr(script.requests, "get", fake_get)
+    return calls
+
+
+# A realistic REST Countries v5 payload (shape verified live on 2026-08-02 against
+# https://api.restcountries.com/countries/v5 with the documented public demo key:
+# success payloads sit under data.objects, currencies/capitals/languages are arrays
+# of objects). Trimmed to the fields WebApp/script.py reads.
+V5_MALAYSIA_PAYLOAD = {
+    "data": {
+        "objects": [
+            {
+                "names": {"common": "Malaysia", "official": "Malaysia"},
+                "currencies": [
+                    {"code": "MYR", "name": "Malaysian ringgit", "symbol": "RM"},
+                ],
+                "capitals": [
+                    {"name": "Kuala Lumpur",
+                     "attributes": {"primary": True},
+                     "coordinates": {"lat": 3.14, "lng": 101.7}},
+                ],
+                "region": "Asia",
+                "subregion": "South-Eastern Asia",
+                "languages": [
+                    {"name": "Malay", "native_name": "bahasa Melayu",
+                     "iso639_1": "ms", "iso639_3": "msa", "bcp47": "ms"},
+                ],
+                "population": 33938221,
+                "timezones": ["UTC+08:00"],
+            }
+        ]
+    }
+}
+
+
 # ─── / (home) ────────────────────────────────────────────────────────────────
 
 def test_home_returns_200_with_welcome_content(client):
@@ -146,25 +190,56 @@ def test_country_form_page_returns_200(client):
     assert b"Search for a Country" in response.data
 
 
-def test_country_search_fails_against_deprecated_api(client, monkeypatch):
-    # CURRENT behavior, asserted honestly — this is NOT a passing feature test.
-    # REST Countries v3.1 (the API this app was built against in 2023) is
-    # deprecated upstream and answers with a non-200 deprecation notice
-    # (observed live; see .docs/06-troubleshooting/common-issues.md). We
-    # simulate that observed upstream response offline: createCountry returns
-    # its {"error": ...} dict and the route renders error.html. If /country is
-    # ever migrated to the current REST Countries API, this test SHOULD fail
-    # and be replaced with a real success-path test.
+def test_country_search_by_name_renders_v5_country(client, monkeypatch):
+    # The /country feature runs against REST Countries v5 (v1–v4 are deprecated
+    # upstream — every legacy URL now 301s to a static deprecation notice). The
+    # mocked payload mirrors the live v5 shape: data.objects array; currencies,
+    # capitals and languages as arrays of objects.
+    calls = patch_requests_get_capture(monkeypatch, 200, V5_MALAYSIA_PAYLOAD)
+    response = client.post(
+        "/country",
+        data={"search_type": "name", "search_term": "Malaysia"},
+    )
+    assert response.status_code == 200
+    assert b"Malaysia" in response.data
+    assert b"MYR" in response.data              # currency code (dict keys joined)
+    assert b"Kuala Lumpur" in response.data     # capitals[0].name
+    assert b"South-Eastern Asia" in response.data
+    assert b"Malay" in response.data            # language name (dict values joined)
+    assert b"33938221" in response.data
+    assert b"UTC+08:00" in response.data
+    # It asked the v5 search-by-property endpoint, lowercased, with the bearer key.
+    assert len(calls) == 1
+    url, kwargs = calls[0]
+    assert url == "https://api.restcountries.com/countries/v5/names.common?q=malaysia"
+    assert kwargs.get("headers", {}).get("Authorization", "").startswith("Bearer ")
+
+
+def test_country_search_no_match_shows_error_page(client, monkeypatch):
+    # v5 search endpoints answer 200 with an empty objects array when nothing
+    # matches — the route must land on the error page, not crash on [0].
+    patch_requests_get(monkeypatch, 200, {"data": {"objects": []}})
+    response = client.post(
+        "/country",
+        data={"search_type": "name", "search_term": "atlantis"},
+    )
+    assert response.status_code == 200
+    assert b">Error</h1>" in response.data
+    assert b"No country matched that search." in response.data
+
+
+def test_country_upstream_failure_shows_error_page(client, monkeypatch):
+    # Non-200 from v5 (e.g. 401 bad/expired key) renders the error page.
     patch_requests_get(
-        monkeypatch, 410,
-        {"message": "This API version has been deprecated."},
+        monkeypatch, 401,
+        {"errors": [{"message": "Missing or unrecognized API key."}]},
     )
     response = client.post(
         "/country",
         data={"search_type": "name", "search_term": "malaysia"},
     )
-    assert response.status_code == 200  # the error page itself renders fine
-    assert b">Error</h1>" in response.data  # the Error heading renders (class-agnostic)
+    assert response.status_code == 200
+    assert b">Error</h1>" in response.data
     assert b"Failed to fetch a country from the Country API." in response.data
 
 
@@ -181,10 +256,21 @@ def test_country_invalid_search_type_shows_error_page(client):
 # ─── URL builders (pure, no HTTP) ────────────────────────────────────────────
 
 def test_countries_api_url_builders_lowercase_and_route_correctly():
+    # v5 search-by-property endpoints (substring, case-insensitive) — the closest
+    # match to the old v3.1 partial-match lookups the UI was built around.
     api = script.CountriesAPI()
-    assert api.searchByName("Malaysia") == "https://restcountries.com/v3.1/name/malaysia"
-    assert api.searchByCurrency("MYR") == "https://restcountries.com/v3.1/currency/myr"
-    assert api.searchByLanguage("Malay") == "https://restcountries.com/v3.1/lang/malay"
-    assert api.searchByCapitalCity("Kuala Lumpur") == (
-        "https://restcountries.com/v3.1/capital/kuala lumpur"
-    )
+    base = "https://api.restcountries.com/countries/v5"
+    assert api.searchByName("Malaysia") == base + "/names.common?q=malaysia"
+    assert api.searchByCurrency("MYR") == base + "/currencies?q=myr"
+    assert api.searchByLanguage("Malay") == base + "/languages?q=malay"
+    assert api.searchByCapitalCity("Kuala Lumpur") == base + "/capitals?q=kuala lumpur"
+
+
+def test_countries_api_defaults_to_documented_demo_key(monkeypatch):
+    # Without RESTCOUNTRIES_API_KEY in the environment, the client falls back to
+    # the public no-account demo key documented at restcountries.com/docs
+    # (returns a fixed, correctly-shaped sample). A real key takes precedence.
+    monkeypatch.delenv("RESTCOUNTRIES_API_KEY", raising=False)
+    assert script.CountriesAPI().api_key == "rc_live_demo"
+    monkeypatch.setenv("RESTCOUNTRIES_API_KEY", "rc_live_real_key")
+    assert script.CountriesAPI().api_key == "rc_live_real_key"
